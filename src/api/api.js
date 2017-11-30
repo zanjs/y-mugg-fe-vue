@@ -32,6 +32,14 @@ const recordExcelList = params => {
   })
 }
 
+const recordExcelListQ2 = params => {
+  return fetch({
+    url: `/v1/records/q2`,
+    method: 'get',
+    params
+  })
+}
+
 const recordList = params => {
   return fetch({
     url: `/v1/records?limit=${params.limit}&offset=${params.offset}`,
@@ -40,9 +48,17 @@ const recordList = params => {
   })
 }
 
+const recordUpdate = params => {
+  return fetch({
+    url: `/v1/records/${params.id}`,
+    method: 'PUT',
+    params: params
+  })
+}
+
 const productList = params => {
   return fetch({
-    url: `/v1/products?category=${params.category}&limit=${params.limit}&page=${params.page}`,
+    url: `/v1/products?limit=${params.limit}&page=${params.page}`,
     method: 'get',
     params: ''
   })
@@ -50,7 +66,7 @@ const productList = params => {
 
 const wareroomList = params => {
   return fetch({
-    url: `/v1/warerooms?category=${params.category}&limit=${params.limit}&page=${params.page}`,
+    url: `/v1/warerooms?limit=${params.limit}&page=${params.page}`,
     method: 'get',
     params: ''
   })
@@ -104,14 +120,6 @@ const wareroomDelete = params => {
   })
 }
 
-const orderList = params => {
-  return fetch({
-    url: `/api/data/${params.category}/${params.limit}/${params.page}`,
-    method: 'get',
-    params: ''
-  })
-}
-
 const articleList = params => {
   return fetch({
     url: `/api/search/query/listview/category/Android/count/${params.limit}/page/${params.page}`,
@@ -153,8 +161,10 @@ const checkToken = params => {
 }
 const apiList = {
   Login,
+  recordUpdate,
   recordList,
   recordExcelList,
+  recordExcelListQ2,
   productUpdate,
   productList,
   wareroomList,
@@ -163,7 +173,6 @@ const apiList = {
   wareroomUpdate,
   productDelete,
   wareroomDelete,
-  orderList,
   articleList,
   userList,
   postUserInfo,

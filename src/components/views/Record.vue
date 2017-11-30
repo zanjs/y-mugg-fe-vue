@@ -27,14 +27,8 @@
       <Col>
       <Card>
         <div slot="title">
-          <Button type="dashed" @click.native="fixedHeader=!fixedHeader">
-            <Icon type="pin"></Icon>
-          </Button>
-          <Button type="primary" @click="searchShow" shape="circle" ><Icon type="funnel"></Icon> 筛选</Button>
-          <Button type="error" v-if="selection.length>0" @click="deleteTip=true">
-            <Icon type="trash-a"></Icon>
-            批量删除
-          </Button>
+          <Button type="primary" @click="refresh" shape="circle" ><Icon type="ios-loop-strong"></Icon> 刷新</Button>
+          <Button type="success" shape="circle" >共 ：{{count}} 条数据</Button>
         </div>
 
         <a href="#" slot="extra" @click.prevent="refresh">
@@ -72,11 +66,11 @@
       </p>
       <div style="text-align:center">
         <Form :model="formItem" :label-width="80">
-          <Form-item label="商品名称">
-            <Input v-model="currDate.title" placeholder="请输入"></Input>
+          <Form-item label="库存">
+            <Input v-model="currDate.quantity" placeholder="请输入"></Input>
           </Form-item>
-          <Form-item label="外部编码">
-            <Input v-model="currDate.external_code" placeholder="请输入"></Input>
+          <Form-item label="销量">
+            <Input v-model="currDate.sales" placeholder="请输入"></Input>
           </Form-item>
         </Form>
       </div>
@@ -127,13 +121,8 @@
         selection: [], // 表格选中项
         listData: [], // @:data
         columns1: [
-          { // @:columns
-            type: 'selection', // 开启checkbox
-            width: 60,
-            align: 'center'
-          },
           {
-            title: '创建日期',
+            title: '同步时间',
             key: 'created_at',
             sortable: true
           },
@@ -172,26 +161,25 @@
           {
             title: '操作',
             key: 'action',
-            width: 60,
+            width: 120,
             fixed: 'right',
             align: 'center',
             render: (h, params) => {
               return h('div', [
-                // h('Button', {
-                //   props: {
-                //     type: 'text',
-                //     size: 'small'
-                //   },
-                //   style: {
-                //     marginRight: '5px',
-                //     color: '#5cadff'
-                //   },
-                //   on: {
-                //     click: () => {
-                //       this.show(params.index)
-                //     }
-                //   }
-                // }, '查看'),
+                h('Button', {
+                  props: {
+                    type: 'text',
+                    size: 'small'
+                  },
+                  style: {
+                    color: '#5cadff'
+                  },
+                  on: {
+                    click: () => {
+                      this.edit(params.index)
+                    }
+                  }
+                }, '编辑'),
                 h('Button', {
                   props: {
                     type: 'text',
@@ -337,10 +325,10 @@
         this.loading = true
         var vm = this
         var params = this.currDate
-        this.$api.productCreate(params).then((res) => {
+        this.$api.recordUpdate(params).then((res) => {
           console.log(res)
           this.loading = false
-          this.$Message.info('保存成功')
+          this.$Message.info('跟新成功')
           this.editModal = false
           vm.refresh()
         })

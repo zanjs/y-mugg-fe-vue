@@ -34,10 +34,10 @@
         </Menu>
       </nav-bar>
       <div class="theme-switch" :class="{hidden:!state.sidebar.opened}">
-        Switch Theme
+        主题
         <i-switch size="large" @on-change="themeChange" v-model="themeBool">
-          <span slot="open">Dark</span>
-          <span slot="close">Light</span>
+          <span slot="open">深色 </span>
+          <span slot="close">亮色</span>
         </i-switch>
       </div>
       <!-- 左侧导航 /-->

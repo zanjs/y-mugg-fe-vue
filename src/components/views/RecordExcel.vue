@@ -4,29 +4,61 @@
       <Col>
       <Card>
         <div slot="title">
-          <Button type="primary" @click="refresh" shape="circle" ><Icon type="ios-loop-strong"></Icon> 刷新</Button>
-        </div>
+        <span class="pull-right">
+          <DatePicker :value="dateVal" format="yyyy-MM-dd HH:mm:ss" @on-change="datePickerChange" type="datetimerange" placement="bottom-end" placeholder="选择日期" style="width: 300px"></DatePicker>
+        </span>
 
-        <a href="#" slot="extra" @click.prevent="refresh">
-          <Icon type="ios-loop-strong"></Icon>
-        </a>
-        <div class="table-box">
+        <Button type="primary" @click="refresh" shape="circle" ><Icon type="ios-loop-strong"></Icon> 刷新</Button>
+        <Button type="success" shape="circle" >共 ：{{warerooms.length}} 仓库</Button>
+        <Button type="success" shape="circle" >共 ：{{products.length}} 产品</Button>
+        </div>
+        <div class="show-span" >
+          <span class="health">
+            健康状态 > 200
+          </span>
+          <span class="blue">
+           50 > 库存减销量 < 200
+          </span>
+           <span class="yellow">
+           库存紧张状态 <= 50
+          </span>
+          <span class="red">
+            销量大于库存
+          </span>
+          <span class="gray">
+           库存 = 0
+          </span>
+        </div>
+        <div class="table-box" style="padding-top:10px;">
           <table class="excel-table exportCsv">
             <tr>
               <th>
                 产品/分仓
               </th>
-              <th v-for="wareroom in warerooms" :key="wareroom.id">
+              <th v-for="wareroom in warerooms" :key="wareroom.title">
                 {{ wareroom.title }}
               </th>
             </tr>
-            <tr v-for="product in products" :key="product.id">
+            <tr v-for="product in products" :key="product.product_title">
               <td>
                 {{ product.product_title }}
               </td>
-              <td v-for="excel in product.product_excel_quantity" :key="excel.quantity">
+              <td v-for="excel in product.product_excel_quantity" :key="excel.created_at+excel.quantity">
+                <span v-if="excel.sales > excel.quantity" class="red">
                   （{{ excel.quantity }} / {{ excel.sales}} ）
-                  
+                </span>
+                <span v-else-if="excel.quantity - excel.sales > 200" class="health">
+                  （{{ excel.quantity }} / {{ excel.sales}} ）
+                </span>
+                <span v-else-if="excel.quantity - excel.sales > 50" class="blue">
+                  （{{ excel.quantity }} / {{ excel.sales}} ）
+                </span>
+                <span v-else-if="excel.quantity == 0" class="gray">
+                  （{{ excel.quantity }} / {{ excel.sales}} ）
+                </span>
+                <span v-else class="yellow">
+                  （{{ excel.quantity }} / {{ excel.sales}} ）
+                </span>
               </td>
             </tr>
           </table>
@@ -44,14 +76,7 @@
     components: {},
     data () {
       return {
-        formItem: {
-          input: '',
-          select: '',
-          date: '',
-          time: '',
-          radio: '',
-          checkbox: []
-        },
+        dateVal: [],
         searchState: false,
         editModal: false,
         detailModal: false,
@@ -62,62 +87,10 @@
         tableSize: 'small', // @:size
         DateReady: false, // 判断异步数据加载完成，避免报错
         loading: false, // save
-        currDate: {}, // 当前编辑和新增的行数据
-        currIndex: 0, // 当前编辑和新增的行号
         saveDisabled: false,
-        params: {
-          offset: 0,
-          limit: 10
-        },
-        count: 0,
+        params: {},
         warerooms: [],
-        products: [],
-        selection: [], // 表格选中项
-        listData: [], // @:data
-        columns1: [
-          { // @:columns
-            type: 'selection', // 开启checkbox
-            width: 60,
-            align: 'center'
-          },
-          {
-            title: '创建日期',
-            key: 'created_at',
-            sortable: true
-          },
-          {
-            title: '产品信息',
-            // key: 'product.title',
-            render: function (h, params) {
-              return h('div', params.row.product.title)
-            },
-            className: 'min-width',
-            sortable: true
-          },
-          {
-            title: '仓库Id',
-            key: 'wareroom_id',
-            sortable: true
-          },
-          {
-            title: '仓库信息',
-            // key: 'wareroom',
-            render: function (h, params) {
-              return h('div', params.row.wareroom.title)
-            },
-            sortable: true
-          },
-          {
-            title: '库存',
-            key: 'quantity',
-            sortable: true
-          },
-          {
-            title: '销量',
-            key: 'sales',
-            sortable: true
-          }
-        ]
+        products: []
       }
     },
     watch: {
@@ -126,30 +99,19 @@
        * */
       params: {
         handler (val) {
+          console.log('params')
+          console.log(val)
           this.getData(val)
         },
         deep: true
       },
-      fixedHeader: {
+      dateVal: {
         handler (val) {
-          if (val) {
-            this.$Message.info('表头已固定')
-          }
-        }
-      },
-      currDate: {
-        handler (val) {
+          console.log('hander datevV')
           console.log(val)
-          for (let i = 0; i < Object.values(val).length; i++) {
-            if (Object.values(val)[i] === '') {
-              this.saveDisabled = true
-              return
-            } else {
-              this.saveDisabled = false
-            }
-          }
-        },
-        deep: true
+          // this.params.start_time = val[0]
+          // this.params.end_time = val[1]
+        }
       }
     },
     computed: {
@@ -167,12 +129,9 @@
       refresh () {
         this.getData(this.params)
       },
-      /**
-       * @params:category 分类 page：页码 limit:条数
-       * */
       getData (params) {
         this.loading2 = true
-        this.$api.recordExcelList(params).then((res) => {
+        this.$api.recordExcelListQ2(params).then((res) => {
           console.log(res)
           if (res.warerooms) {
             this.warerooms = res.warerooms
@@ -185,87 +144,15 @@
           }
         })
       },
-      /**
-       * @on-change 页码改变的回调，返回改变后的页码
-       * */
-      pageChange (page) {
-        this.params.offset = page - 1
-      },
-      /**
-       * @on-page-size-change 切换每页条数时的回调，返回切换后的每页条数
-       * */
-      PageSizeChange (limit) {
-        this.params.limit = limit
-      },
-      /**
-       * 删除
-       */
-      remove (index) {
-        this.$Message.error('开发中')
-        // console.log(this.listData[index])
-        // var id = this.listData[index].id
-        // var params = {id}
-        // this.$api.productDelete(params).then((res) => {
-        //   console.log(res)
-        // })
-        // this.listData.splice(index, 1)
-      },
-      edit (index) {
-        this.editModal = true
-        this.currIndex = index
-        if (index === -1) { // 新增
-          this.currDate = {
-            title: '',
-            external_code: ''
-          }
-        } else { // 编辑
-          this.currDate = this.listData[index]
-        }
-      },
-      /**
-       * 批量删除
-       */
-      deleteBatch () {
-        this.deleteTip = false
-        // ...
-      },
-      saveBatch () {
-        this.loading = true
-        var vm = this
-        var params = this.currDate
-        this.$api.productCreate(params).then((res) => {
-          console.log(res)
-          this.loading = false
-          this.$Message.info('保存成功')
-          this.editModal = false
-          vm.refresh()
-        })
-      },
-      /**
-       * 数据导出
-       * @ type 1 原始数据 2过滤数据
-       */
-      exportData (type) {
-        if (type === 1) {
-          this.$refs.table.exportCsv({
-            filename: '原始数据'
-          })
-        } else if (type === 2) {
-          this.$refs.table.exportCsv({
-            filename: '排序和过滤后的数据',
-            original: false
-          })
-        }
-      },
-      /**
-       * 多选
-       * selection：已选项数据 row：刚选择的项数据
-       */
-      onSelect (selection, row) {
-        // console.log(selection,row)
-      },
-      onSelectionChange (selection) {
-        this.selection = selection
+      datePickerChange (e) {
+        console.log(e)
+        this.dateVal = e
+        var params = this.params
+        params.start_time = e[0]
+        params.end_time = e[1]
+        this.params = params
+        console.log(params)
+        this.getData(params)
       }
     },
     created () {
@@ -322,6 +209,31 @@
   }
   .table-box{
     overflow-y: auto;
+  }
+  .show-span{
+    span{
+      margin-right: 20px;
+      padding-right: 10px;
+      border-right: 2px solid #ccc; 
+    }
+  }
+  .red{
+    color: red;
+  }
+  .yellow{
+    color: #ff7800;
+  }
+  .health{
+    color: #24cc61;
+  }
+  .purple{
+    color: #c921d6;
+  }
+  .blue{
+    color: #3399ff;
+  }
+  .gray{
+    color: #ededed;
   }
 </style>
 

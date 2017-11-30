@@ -5,18 +5,12 @@
       <Col>
       <Card>
         <Form :label-width="80" inline>
-          <Form-item label="输入框">
-            <Input v-model="formItem.input" placeholder="请输入" style="width:187px"></Input>
-          </Form-item>
           <div class="clearfix" style="border-top:1px solid #eee;margin-top:-15px;padding-top:10px">
           <span class="pull-right">
-              <Button type="primary" icon="ios-search" shape="circle">查询</Button>
-              <Button type="primary" icon="ios-close-empty" shape="circle">清楚条件</Button>
               <Button type="primary" icon="ios-download-outline" shape="circle" @click="exportData(1)">导出原始数据</Button>
               <Button type="primary" icon="ios-download-outline" shape="circle"
                       @click="exportData(2)">导出排序和过滤后数据</Button>
             </span>
-
           </div>
         </Form>
       </Card>
@@ -27,14 +21,12 @@
       <Col>
       <Card>
         <div slot="title">
-          <Button type="dashed" @click.native="fixedHeader=!fixedHeader">
-            <Icon type="pin"></Icon>
-          </Button>
           <Button type="success" @click.native="edit(-1)">
             <Icon type="trash-a"></Icon>
             新增
           </Button>
-          <Button type="primary" @click="searchShow" shape="circle" ><Icon type="funnel"></Icon> 筛选</Button>
+          <Button type="primary" @click="searchShow" shape="circle" ><Icon type="funnel"></Icon> 导出</Button>
+          <Button type="success" shape="circle" >共 ：{{listData.length}} 条数据</Button>
           <Button type="error" v-if="selection.length>0" @click="deleteTip=true">
             <Icon type="trash-a"></Icon>
             批量删除
@@ -79,6 +71,9 @@
           </Form-item>
           <Form-item label="外部编码">
             <Input v-model="currDate.external_code" placeholder="请输入"></Input>
+          </Form-item>
+          <Form-item label="排序号">
+            <Input v-model="currDate.sort" placeholder="请输入"></Input>
           </Form-item>
         </Form>
       </div>
@@ -134,8 +129,8 @@
           //   align: 'center'
           // },
           {
-            title: '创建日期',
-            key: 'created_at',
+            title: '排序',
+            key: 'sort',
             sortable: true
           },
           {
@@ -148,7 +143,7 @@
           }, {
             title: '操作',
             key: 'action',
-            width: 170,
+            width: 120,
             fixed: 'right',
             align: 'center',
             render: (h, params) => {

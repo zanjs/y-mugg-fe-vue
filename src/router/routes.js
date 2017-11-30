@@ -52,7 +52,7 @@ const routes = [
       },
       {
         path: '/product',
-        name: '商品',
+        name: '产品',
         component: Product,
         meta: {
           requiresAuth: true // 是否需要登录
@@ -68,7 +68,7 @@ const routes = [
       },
       {
         path: '/record',
-        name: '库存记载',
+        name: '记录',
         component: Record,
         meta: {
           requiresAuth: true // 是否需要登录
@@ -76,7 +76,7 @@ const routes = [
       },
       {
         path: '/record_excel',
-        name: '最新库存',
+        name: '库存',
         component: RecordExcel,
         meta: {
           requiresAuth: true // 是否需要登录
