@@ -38,10 +38,16 @@
               <th v-for="wareroom in warerooms" :key="wareroom.title">
                 {{ wareroom.title }}
               </th>
+               <th>
+                合计
+              </th>
+               <th>
+                分仓\产品
+              </th>
             </tr>
             <tr v-for="product in products" :key="product.product_title">
               <td>
-                {{ product.product_title }}
+                {{ product.product_title }}  
               </td>
               <td v-for="excel in product.product_excel_quantity" :key="excel.created_at+excel.quantity">
                 <span v-if="excel.sales > excel.quantity" class="red">
@@ -60,6 +66,12 @@
                   （{{ excel.quantity }} / {{ excel.sales}} ）
                 </span>
               </td>
+               <td>
+                ( {{ product.toal.quantity}} / {{product.toal.sales}} )
+              </td>
+               <td>
+                {{ product.product_title }}  
+              </td>
             </tr>
           </table>
         </div>
@@ -70,6 +82,7 @@
 </template>
 <script>
   import elementResizeDetectorMaker from 'element-resize-detector'
+  import filterProduct from '../../common/filter/product'
   var erd = elementResizeDetectorMaker()
   export default {
     name: 'record_excel',
@@ -104,14 +117,6 @@
           this.getData(val)
         },
         deep: true
-      },
-      dateVal: {
-        handler (val) {
-          console.log('hander datevV')
-          console.log(val)
-          // this.params.start_time = val[0]
-          // this.params.end_time = val[1]
-        }
       }
     },
     computed: {
@@ -135,7 +140,8 @@
           console.log(res)
           if (res.warerooms) {
             this.warerooms = res.warerooms
-            this.products = res.products
+            const products = filterProduct.excel(res.products)
+            this.products = products
             this.DateReady = true
             this.loading2 = false
           } else {
@@ -234,6 +240,9 @@
   }
   .gray{
     color: #ededed;
+  }
+  .strong{
+    font-weight: bold;
   }
 </style>
 
