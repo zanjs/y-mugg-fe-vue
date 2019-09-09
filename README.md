@@ -1,5 +1,7 @@
 # y-mugg-fe-vue
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/zanjs/y-mugg-fe-vue.svg)](https://greenkeeper.io/)
+
 > vue-admin by iview
 
 ## Build Setup
